@@ -5,7 +5,7 @@ import Navbar from "@/components/navbar";
 const Page = () => {
   return (
     <main>
-      <h2>TODO Next + Typescript</h2>
+      <h2>TODOS Next + Typescript</h2>
       <Navbar />
       <AddTodo />
       <Todos />

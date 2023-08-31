@@ -18,9 +18,31 @@ export type TodosContext = {
 
 export const todosContext = createContext<TodosContext | null>(null);
 
+// Define a utility function for handling localStorage
+const getLocalStorage = () => {
+  if (typeof localStorage !== "undefined") {
+    return localStorage;
+  } else {
+    // Create a simple in-memory storage for non-browser environments
+    const data: Record<string, string> = {};
+    return {
+      getItem(key: string) {
+        return data[key];
+      },
+      setItem(key: string, value: string) {
+        data[key] = value;
+      },
+      removeItem(key: string) {
+        delete data[key];
+      },
+    };
+  }
+};
+
 export const TodosProvider = ({ children }: { children: ReactNode }) => {
   const [todos, setTodos] = useState<Todo[]>(() => {
-    const newTodos = localStorage.getItem("todos") || "[]";
+    const storage = getLocalStorage();
+    const newTodos = storage.getItem("todos") || "[]";
     return JSON.parse(newTodos) as Todo[];
   });
 
@@ -35,7 +57,8 @@ export const TodosProvider = ({ children }: { children: ReactNode }) => {
         },
         ...prev,
       ];
-      localStorage.setItem("todos", JSON.stringify(newTodos));
+      const storage = getLocalStorage();
+      storage.setItem("todos", JSON.stringify(newTodos));
       return newTodos;
     });
   };
@@ -49,7 +72,8 @@ export const TodosProvider = ({ children }: { children: ReactNode }) => {
         }
         return task;
       });
-      localStorage.setItem("todos", JSON.stringify(newTodos));
+      const storage = getLocalStorage();
+      storage.setItem("todos", JSON.stringify(newTodos));
       return newTodos;
     });
   };
@@ -58,7 +82,8 @@ export const TodosProvider = ({ children }: { children: ReactNode }) => {
   const handleDelete = (id: string) => {
     setTodos((prev) => {
       const newTodos = prev.filter((task) => task.id !== id);
-      localStorage.setItem("todos", JSON.stringify(newTodos));
+      const storage = getLocalStorage();
+      storage.setItem("todos", JSON.stringify(newTodos));
       return newTodos;
     });
   };
